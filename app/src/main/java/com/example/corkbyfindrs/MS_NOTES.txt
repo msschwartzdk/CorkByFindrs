@@ -1,0 +1,19 @@
+Comments to the App design from a complete rookie.
+
+*** BLE scanning in foreground and background.
+To scan for both foreign and own devices, the Android Beacon Library is used.
+A beacon scanner is started, looking for NORMAL and ALERT UUIDs in range.
+Beacon scanner functionality is very sensitive to PERMISSIONS_GRANTED.
+It has turned out that permissions must be handled in to runs.
+First, the so called foreground permissions. When granted then background permissions.
+To let the scanner run in the background, a foreground service is required.
+The service is started when App is launched.
+
+*** Viewmodels and Repositories
+As usual viewmodels are used to shared data between activities/BLE manager and UI (composables)
+However, as the beacon manager is started from the foreground service, a repository is used to
+link the beacon manager with the viewmodel (not sure I understand all the details).
+Anyway, the repository (BleRepository) is updated inside the BleManager shared with BleViewModel.
+This way BleManager updates are made available to UI through the BleViewModel (smart?)
+
+
