@@ -29,6 +29,9 @@ android {
             )
         }
     }
+    //composeOptions {
+    //    kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get()
+    //}
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -42,6 +45,7 @@ android {
 }
 
 dependencies {
+
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -59,6 +63,8 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    implementation(libs.compose.ui.preview)
+    implementation(libs.compose.material3)
 
     //For AltBeacon
     implementation("com.google.accompanist:accompanist-permissions:0.36.0")

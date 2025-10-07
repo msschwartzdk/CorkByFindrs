@@ -100,7 +100,7 @@ fun StartNavigation() {
         }
 
         composable("login") {
-            val viewModel = viewModel<LoginViewModel>()
+            val viewModel = hiltViewModel<LoginViewModel>()
             LoginScreen(
                 viewModel = viewModel,
                 onLoginSuccess = {
@@ -125,9 +125,10 @@ fun StartNavigation() {
                 }
             }
 
+            /*
             ConnectionScreen(
                 bleViewModel = bleViewModel,
-            )
+            )*/
         }
     }
 }
