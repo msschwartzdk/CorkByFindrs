@@ -35,7 +35,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.corkbyfindrs.ble.BleViewModel
+import com.example.corkbyfindrs.data.ServerClient
+import com.example.corkbyfindrs.data.UserSettingsRepository
 import com.example.corkbyfindrs.service.CorkForegroundService
+import com.example.corkbyfindrs.ui.screens.BikeDataViewModel
+import com.example.corkbyfindrs.ui.screens.BikeListScreen
 import com.example.corkbyfindrs.ui.screens.ConnectionScreen
 import com.example.corkbyfindrs.ui.screens.LoginScreen
 import com.example.corkbyfindrs.ui.screens.PermissionScreen
@@ -55,6 +59,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.i(TAG, "*** CorkByFindrs onCreate ***")
+
         createNotificationChannel(applicationContext)
 
         setContent {
@@ -79,7 +84,7 @@ fun StartNavigation() {
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
 
-    val bleViewModel = hiltViewModel<BleViewModel>()
+
 
     // Log route changes
     LaunchedEffect(currentRoute) {
@@ -100,23 +105,22 @@ fun StartNavigation() {
         }
 
         composable("login") {
-            val viewModel = hiltViewModel<LoginViewModel>()
+            val loginViewModel = hiltViewModel<LoginViewModel>()
             LoginScreen(
-                viewModel = viewModel,
+                viewModel = loginViewModel,
                 onLoginSuccess = {
-                    navController.navigate("start_scanner") {
+                    navController.navigate("fetch_bike_data") {
                         popUpTo("login") { inclusive = true }
                     }
                 }
             )
         }
 
-
-
-        composable("start_scanner") {
+        composable("fetch_bike_data") {
+            val bikeDataViewModel = hiltViewModel<BikeDataViewModel>()
+            val bleViewModel = hiltViewModel<BleViewModel>()
             val context = LocalContext.current
             val started = remember { mutableStateOf(false) }
-
             LaunchedEffect(Unit) {
                 if (!started.value) {
                     val intent = Intent(context, CorkForegroundService::class.java)
@@ -124,6 +128,10 @@ fun StartNavigation() {
                     started.value = true
                 }
             }
+
+            BikeListScreen(
+                viewModel = bikeDataViewModel,
+            )
 
             /*
             ConnectionScreen(

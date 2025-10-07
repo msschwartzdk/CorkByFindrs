@@ -1,71 +1,94 @@
 package com.example.corkbyfindrs.ui.screens
 
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.corkbyfindrs.ui.theme.LoginViewModel
 
 @Composable
 fun LoginScreen(
-    viewModel: LoginViewModel = viewModel(),
+    viewModel: LoginViewModel,
     onLoginSuccess: () -> Unit
 ) {
-    val isLoggedIn by viewModel.isLoggedIn.collectAsState()
-    val username by viewModel.username.collectAsState()
-    val password by viewModel.password.collectAsState()
+    val context = LocalContext.current
+    val status by viewModel.permissionStatus
+    val showLoginDialog = viewModel.showLoginDialog
 
-    // If already logged in, skip login UI
     LaunchedEffect(Unit) {
-        viewModel.checkIfAlreadyLoggedIn()
+        viewModel.attemptAutoLoginOrShowManualLoginInternal()
     }
 
-    if (isLoggedIn) {
+    // 🔔 React to "Login successful!" and show Toast
+    LaunchedEffect(status) {
+        if (status.contains("successful", ignoreCase = true)) {
+            Toast.makeText(context, "Login successful!", Toast.LENGTH_SHORT).show()
+        }
         onLoginSuccess()
-        return
     }
 
-    var inputUser by remember { mutableStateOf("") }
-    var inputPass by remember { mutableStateOf("") }
+    if (showLoginDialog) {
+        ManualLoginDialog(
+            prefetchedEmail = viewModel.prefetchedEmail,
+            prefetchedPassword = viewModel.prefetchedPassword,
+            onLogin = { email, password ->
+                viewModel.manualLogin(email, password, onLoginSuccess)
+            }
+        )
+    }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.Center
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Login", style = MaterialTheme.typography.titleLarge)
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = inputUser,
-            onValueChange = { inputUser = it },
-            label = { Text("Username") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value = inputPass,
-            onValueChange = { inputPass = it },
-            label = { Text("Password") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Button(
-            onClick = {
-                viewModel.login(inputUser, inputPass)
-                onLoginSuccess()
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Login")
-        }
+        Text(text = status)
     }
 }
+
+@Composable
+fun ManualLoginDialog(
+    prefetchedEmail: String,
+    prefetchedPassword: String,
+    onLogin: (String, String) -> Unit
+) {
+    var email by remember { mutableStateOf(prefetchedEmail) }
+    var password by remember { mutableStateOf(prefetchedPassword) }
+
+    AlertDialog(
+        onDismissRequest = { /* keep open until successful login */ },
+        title = { Text("Manual Login") },
+        text = {
+            Column {
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = { Text("Email") },
+                    singleLine = true
+                )
+                Spacer(Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text("Password") },
+                    singleLine = true,
+                    visualTransformation = PasswordVisualTransformation()
+                )
+            }
+        },
+        confirmButton = {
+            Button(onClick = { onLogin(email, password) }) {
+                Text("Login")
+            }
+        },
+        dismissButton = {}
+    )
+}
+

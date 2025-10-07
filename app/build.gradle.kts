@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.kotlinx.serialization)
 }
 
 android {
@@ -77,4 +78,14 @@ dependencies {
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
     implementation("androidx.security:security-crypto:1.1.0")
+
+    implementation(libs.kotlinx.serialization.json)
+
+    // OkHttp core
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.logging)
+
+    implementation(libs.datastore.preferences)
+
+    implementation(libs.compose.icons.extended)
 }
