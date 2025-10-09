@@ -88,4 +88,5 @@ dependencies {
     implementation(libs.datastore.preferences)
 
     implementation(libs.compose.icons.extended)
+    implementation(libs.compose.foundation)
 }

@@ -38,6 +38,7 @@ import com.example.corkbyfindrs.ble.BleViewModel
 import com.example.corkbyfindrs.data.ServerClient
 import com.example.corkbyfindrs.data.UserSettingsRepository
 import com.example.corkbyfindrs.service.CorkForegroundService
+import com.example.corkbyfindrs.ui.main.MainPagerScreen
 import com.example.corkbyfindrs.ui.screens.BikeDataViewModel
 import com.example.corkbyfindrs.ui.screens.BikeListScreen
 import com.example.corkbyfindrs.ui.screens.ConnectionScreen
@@ -117,8 +118,8 @@ fun StartNavigation() {
         }
 
         composable("fetch_bike_data") {
-            val bikeDataViewModel = hiltViewModel<BikeDataViewModel>()
-            val bleViewModel = hiltViewModel<BleViewModel>()
+
+            //val bleViewModel = hiltViewModel<BleViewModel>()
             val context = LocalContext.current
             val started = remember { mutableStateOf(false) }
             LaunchedEffect(Unit) {
@@ -127,16 +128,32 @@ fun StartNavigation() {
                     ContextCompat.startForegroundService(context, intent)
                     started.value = true
                 }
+                navController.navigate("main") {
+                    popUpTo("fecth_bike_data") { inclusive = true }
+                }
+
             }
 
-            BikeListScreen(
-                viewModel = bikeDataViewModel,
-            )
+            //BikeListScreen(
+            //    viewModel = bikeDataViewModel,
+            //)
+
+
 
             /*
             ConnectionScreen(
                 bleViewModel = bleViewModel,
             )*/
+
+
+        }
+
+        composable("main") {
+            val bleViewModel = hiltViewModel<BleViewModel>()
+            val bikeDataViewModel = hiltViewModel<BikeDataViewModel>()
+            MainPagerScreen(
+                bikeDataViewModel = bikeDataViewModel,
+                onOpenLog = { navController.navigate("log") })
         }
     }
 }
